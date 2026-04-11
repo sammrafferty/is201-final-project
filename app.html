@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<!-- Sam Rafferty | IS 201 Final Project | Finance Wordle | April 2026 -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Finance Wordle - Sam Rafferty</title>
+  <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(180deg, #0b3d2e 0%, #1a5c46 100%);
+      color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      width: 100%;
+      background-color: rgba(0, 0, 0, 0.3);
+      padding: 14px 20px;
+      text-align: center;
+      border-bottom: 2px solid #d4af37;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+      color: #d4af37;
+      letter-spacing: 1px;
+      font-weight: 900;
+    }
+
+    header .tagline {
+      margin: 4px 0 0 0;
+      font-size: 13px;
+      font-style: italic;
+      color: #cfcfcf;
+    }
+
+    header a {
+      color: #d4af37;
+      font-size: 13px;
+      text-decoration: none;
+      margin-top: 8px;
+      display: inline-block;
+    }
+
+    header a:hover { text-decoration: underline; }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      max-width: 500px;
+      width: 100%;
+    }
+
+    #board {
+      display: grid;
+      grid-template-rows: repeat(6, 1fr);
+      gap: 6px;
+      margin-bottom: 20px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+    }
+
+    .tile {
+      width: 56px;
+      height: 56px;
+      border: 2px solid #4a6a5a;
+      background-color: rgba(255, 255, 255, 0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #f5f5f5;
+      transition: transform 0.2s, background-color 0.3s, border-color 0.3s;
+    }
+
+    .tile.filled {
+      border-color: #a0b0a8;
+      animation: pop 0.15s ease;
+    }
+
+    .tile.correct {
+      background-color: #0b6b3a;
+      border-color: #0b6b3a;
+      color: white;
+    }
+
+    .tile.present {
+      background-color: #d4af37;
+      border-color: #d4af37;
+      color: #1a1a1a;
+    }
+
+    .tile.absent {
+      background-color: #3a3a3a;
+      border-color: #3a3a3a;
+      color: #ccc;
+    }
+
+    @keyframes pop {
+      0%   { transform: scale(1); }
+      50%  { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+
+    #keyboard {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      width: 100%;
+    }
+
+    .kb-row {
+      display: flex;
+      gap: 5px;
+      justify-content: center;
+    }
+
+    .key {
+      min-width: 32px;
+      height: 48px;
+      padding: 0 8px;
+      border: none;
+      border-radius: 4px;
+      background-color: #4a6a5a;
+      color: white;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: background-color 0.2s;
+    }
+
+    .key:hover { background-color: #5a7a6a; }
+
+    .key.wide {
+      min-width: 60px;
+      font-size: 12px;
+    }
+
+    .key.correct { background-color: #0b6b3a; }
+    .key.present { background-color: #d4af37; color: #1a1a1a; }
+    .key.absent  { background-color: #2a2a2a; color: #888; }
+
+    #message {
+      min-height: 24px;
+      margin: 10px 0;
+      font-size: 15px;
+      color: #d4af37;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    #definition-box {
+      display: none;
+      background-color: rgba(0, 0, 0, 0.5);
+      border: 2px solid #d4af37;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 16px 0;
+      max-width: 450px;
+      text-align: center;
+    }
+
+    #definition-box h3 {
+      margin: 0 0 8px 0;
+      color: #d4af37;
+      font-size: 18px;
+    }
+
+    #definition-box p {
+      margin: 0 0 12px 0;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #e5e5e5;
+    }
+
+    #play-again {
+      background-color: #d4af37;
+      color: #1a1a1a;
+      border: none;
+      padding: 10px 24px;
+      font-weight: 700;
+      font-size: 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    #play-again:hover { background-color: #e5c24a; }
+
+    footer {
+      width: 100%;
+      padding: 14px;
+      text-align: center;
+      font-size: 12px;
+      color: #a0a0a0;
+      background-color: rgba(0, 0, 0, 0.2);
+    }
+
+    footer a { color: #d4af37; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>FINANCE WORDLE</h1>
+    <p class="tagline">Six guesses. One finance term. Learn something either way.</p>
+    <a href="scratch.html">&larr; Back to Scratch Page</a>
+  </header>
+
+  <main>
+    <div id="message">Guess the 5-letter finance word</div>
+    <div id="board"></div>
+
+    <div id="definition-box">
+      <h3 id="def-word"></h3>
+      <p id="def-text"></p>
+      <button id="play-again">Play Again</button>
+    </div>
+
+    <div id="keyboard"></div>
+  </main>
+
+  <footer>
+    Built by Sam Rafferty for IS 201 &middot; <a href="scratch.html">Back to Scratch</a> &middot; <a href="index.html">Resume</a>
+  </footer>
+
+  <script>
+    // Finance-themed 5-letter word list with definitions
+    const WORDS = {
+      STOCK: "A share of ownership in a company, giving the holder a claim on part of the company's assets and earnings.",
+      TRADE: "The buying and selling of securities in a financial market.",
+      YIELD: "The income return on an investment, typically expressed as a percentage of cost or current market price.",
+      ASSET: "A resource owned by a person or company that has economic value and is expected to provide future benefit.",
+      BONDS: "Debt securities where an investor loans money to an entity (corporate or government) for a defined period at a fixed interest rate.",
+      MONEY: "A medium of exchange in the form of coins, banknotes, or digital balances used to pay for goods, services, and debts.",
+      PRICE: "The amount of money expected, required, or given in payment for something.",
+      VALUE: "The monetary worth of an asset, business, or good as determined by the market or an investor.",
+      AUDIT: "An official inspection of an individual's or organization's accounts, typically by an independent body.",
+      LOANS: "Sums of money borrowed that are expected to be paid back with interest over time.",
+      FUNDS: "Pools of money set aside for a specific purpose, such as a mutual fund or pension fund.",
+      SHARE: "A single unit of ownership in a corporation; shareholders own shares.",
+      ALPHA: "The excess return of an investment relative to the return of a benchmark index.",
+      BASIS: "The difference between the spot price of an asset and the futures contract price.",
+      HEDGE: "An investment made to reduce the risk of adverse price movements in another asset.",
+      RATIO: "A quantitative relationship between two financial figures, like the P/E ratio.",
+      INDEX: "A statistical measure that tracks the performance of a group of stocks, like the S&P 500.",
+      GAINS: "Increases in the value of an investment; the opposite of losses.",
+      BULLS: "Investors who believe prices will rise; a bull market is one that's trending upward.",
+      BEARS: "Investors who believe prices will fall; a bear market is one that's trending downward.",
+      SHORT: "A position where an investor sells borrowed shares, hoping to buy them back cheaper later.",
+      PRIME: "The interest rate banks charge their most creditworthy customers, used as a benchmark for other loans.",
+      SWAPS: "Derivative contracts where two parties exchange cash flows or liabilities.",
+      NOTES: "Short-term debt securities, typically issued by companies or governments.",
+      QUOTE: "The most recent price at which a security was traded.",
+      LIMIT: "A price restriction placed on an order to buy or sell a security.",
+      ISSUE: "The process of offering new securities to raise capital, such as an IPO.",
+      CRASH: "A sudden, dramatic decline in stock prices across a large section of the market.",
+      RALLY: "A period of sustained increases in the prices of stocks, bonds, or indexes.",
+      CLOSE: "The final price of a security when the trading day ends.",
+      DEBTS: "Money owed by one party to another; liabilities on a balance sheet.",
+      GROSS: "Total revenue or income before any deductions for costs, taxes, or expenses.",
+      WORTH: "The value of an entity or person's assets minus their liabilities (net worth).",
+      CHART: "A graphical representation of price movements over time, used in technical analysis.",
+      BANKS: "Financial institutions that accept deposits, make loans, and provide other financial services.",
+      MERGE: "When two companies combine to form a single new entity, often called a merger.",
+      LEASE: "A contract allowing use of an asset (like property or equipment) in exchange for periodic payments.",
+      OWNER: "A person or entity that holds legal title to an asset or company.",
+      BUYER: "A person or entity purchasing a security, good, or service.",
+      PROXY: "Written authorization allowing someone to vote on a shareholder's behalf at a company meeting."
+    };
+
+    const WORD_LIST = Object.keys(WORDS);
+    const MAX_GUESSES = 6;
+    const WORD_LENGTH = 5;
+
+    let targetWord = '';
+    let currentGuess = '';
+    let currentRow = 0;
+    let gameOver = false;
+    let guesses = [];
+
+    const board = document.getElementById('board');
+    const messageEl = document.getElementById('message');
+    const keyboard = document.getElementById('keyboard');
+    const defBox = document.getElementById('definition-box');
+    const defWord = document.getElementById('def-word');
+    const defText = document.getElementById('def-text');
+    const playAgainBtn = document.getElementById('play-again');
+
+    function buildBoard() {
+      board.innerHTML = '';
+      for (let r = 0; r < MAX_GUESSES; r++) {
+        const row = document.createElement('div');
+        row.className = 'row';
+        row.id = 'row-' + r;
+        for (let c = 0; c < WORD_LENGTH; c++) {
+          const tile = document.createElement('div');
+          tile.className = 'tile';
+          tile.id = 'tile-' + r + '-' + c;
+          row.appendChild(tile);
+        }
+        board.appendChild(row);
+      }
+    }
+
+    const KB_LAYOUT = [
+      ['Q','W','E','R','T','Y','U','I','O','P'],
+      ['A','S','D','F','G','H','J','K','L'],
+      ['ENTER','Z','X','C','V','B','N','M','BACK']
+    ];
+
+    function buildKeyboard() {
+      keyboard.innerHTML = '';
+      KB_LAYOUT.forEach(rowLetters => {
+        const rowEl = document.createElement('div');
+        rowEl.className = 'kb-row';
+        rowLetters.forEach(letter => {
+          const btn = document.createElement('button');
+          btn.className = 'key' + (letter.length > 1 ? ' wide' : '');
+          btn.textContent = letter;
+          btn.dataset.key = letter;
+          btn.addEventListener('click', () => handleKey(letter));
+          rowEl.appendChild(btn);
+        });
+        keyboard.appendChild(rowEl);
+      });
+    }
+
+    function newGame() {
+      targetWord = WORD_LIST[Math.floor(Math.random() * WORD_LIST.length)];
+      currentGuess = '';
+      currentRow = 0;
+      gameOver = false;
+      guesses = [];
+      buildBoard();
+      buildKeyboard();
+      messageEl.textContent = 'Guess the 5-letter finance word';
+      messageEl.style.color = '#d4af37';
+      defBox.style.display = 'none';
+    }
+
+    function handleKey(key) {
+      if (gameOver) return;
+      if (key === 'ENTER') return submitGuess();
+      if (key === 'BACK' || key === 'BACKSPACE') return deleteLetter();
+      if (/^[A-Z]$/.test(key)) return addLetter(key);
+    }
+
+    function addLetter(letter) {
+      if (currentGuess.length >= WORD_LENGTH) return;
+      currentGuess += letter;
+      const tile = document.getElementById('tile-' + currentRow + '-' + (currentGuess.length - 1));
+      tile.textContent = letter;
+      tile.classList.add('filled');
+    }
+
+    function deleteLetter() {
+      if (currentGuess.length === 0) return;
+      currentGuess = currentGuess.slice(0, -1);
+      const tile = document.getElementById('tile-' + currentRow + '-' + currentGuess.length);
+      tile.textContent = '';
+      tile.classList.remove('filled');
+    }
+
+    function submitGuess() {
+      if (currentGuess.length !== WORD_LENGTH) {
+        flashMessage('Need 5 letters');
+        return;
+      }
+      if (!WORD_LIST.includes(currentGuess)) {
+        flashMessage('Not in the finance word list');
+        return;
+      }
+      scoreGuess(currentGuess);
+      guesses.push(currentGuess);
+
+      if (currentGuess === targetWord) {
+        endGame(true);
+        return;
+      }
+
+      currentRow++;
+      currentGuess = '';
+
+      if (currentRow >= MAX_GUESSES) {
+        endGame(false);
+      }
+    }
+
+    function scoreGuess(guess) {
+      const target = targetWord.split('');
+      const result = new Array(WORD_LENGTH).fill('absent');
+
+      // First pass: correct letters
+      for (let i = 0; i < WORD_LENGTH; i++) {
+        if (guess[i] === target[i]) {
+          result[i] = 'correct';
+          target[i] = null;
+        }
+      }
+      // Second pass: present letters
+      for (let i = 0; i < WORD_LENGTH; i++) {
+        if (result[i] === 'correct') continue;
+        const idx = target.indexOf(guess[i]);
+        if (idx !== -1) {
+          result[i] = 'present';
+          target[idx] = null;
+        }
+      }
+
+      // Apply to tiles
+      for (let i = 0; i < WORD_LENGTH; i++) {
+        const tile = document.getElementById('tile-' + currentRow + '-' + i);
+        tile.classList.add(result[i]);
+      }
+
+      // Apply to keyboard keys
+      for (let i = 0; i < WORD_LENGTH; i++) {
+        const keyBtn = document.querySelector('[data-key="' + guess[i] + '"]');
+        if (!keyBtn) continue;
+        const current = keyBtn.classList;
+        if (result[i] === 'correct') {
+          current.remove('present', 'absent');
+          current.add('correct');
+        } else if (result[i] === 'present' && !current.contains('correct')) {
+          current.remove('absent');
+          current.add('present');
+        } else if (result[i] === 'absent' && !current.contains('correct') && !current.contains('present')) {
+          current.add('absent');
+        }
+      }
+    }
+
+    function endGame(won) {
+      gameOver = true;
+      if (won) {
+        messageEl.textContent = 'You got it! Solved in ' + (currentRow + 1) + (currentRow === 0 ? ' guess' : ' guesses') + '.';
+        messageEl.style.color = '#d4af37';
+      } else {
+        messageEl.textContent = 'Out of guesses. The word was ' + targetWord + '.';
+        messageEl.style.color = '#ff8c8c';
+      }
+      defWord.textContent = targetWord;
+      defText.textContent = WORDS[targetWord];
+      defBox.style.display = 'block';
+    }
+
+    function flashMessage(text) {
+      const original = messageEl.textContent;
+      messageEl.textContent = text;
+      setTimeout(() => {
+        if (!gameOver) messageEl.textContent = original;
+      }, 1500);
+    }
+
+    playAgainBtn.addEventListener('click', newGame);
+
+    document.addEventListener('keydown', (e) => {
+      if (gameOver) return;
+      if (e.key === 'Enter') return handleKey('ENTER');
+      if (e.key === 'Backspace') return handleKey('BACK');
+      const k = e.key.toUpperCase();
+      if (/^[A-Z]$/.test(k)) handleKey(k);
+    });
+
+    newGame();
+  </script>
+
+</body>
+</html>

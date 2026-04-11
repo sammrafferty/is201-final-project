@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<!-- Sam Rafferty | IS 201 Final Project | From-Scratch Page | April 2026 -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sam's Cycling Page</title>
+  <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+  <link rel="stylesheet" href="css/scratch.css">
+</head>
+<body>
+
+  <div id="header">
+    <h1>Sam's Cycling Page</h1>
+    <p>My favorite rides, data, and a little video — from scratch, no Bootstrap.</p>
+  </div>
+
+  <div id="toc">
+    Jump to:
+    <a href="#rides">Favorite Rides</a>
+    <a href="#video">Video</a>
+    <a href="#tableau">Data</a>
+    <a href="#app-link">Web App</a>
+  </div>
+
+  <div id="sidebar">
+    <h3>About This Page</h3>
+    <p>This is the from-scratch page for my IS 201 final project. I wrote every bit of the HTML and CSS by hand (with some AI help) — no Bootstrap here. The topic is <span class="highlight">cycling</span>, which is one of my favorite things to do when I'm not in a finance class.</p>
+    <img src="images/bike.png" alt="Photo from one of my bike rides">
+    <p>One of my favorite training rides.</p>
+  </div>
+
+  <div id="main">
+
+    <h2 id="rides">Favorite Bike Rides</h2>
+    <p>Here are my top three road rides in the western US, ranked. Each one has a few notes below it.</p>
+    <ol>
+      <li>
+        LoToJa (Logan, UT to Jackson, WY)
+        <ul>
+          <li>206 miles in a single day — the longest single-day road race in the country</li>
+          <li>Crosses three states: Utah, Idaho, and Wyoming</li>
+          <li>Finished it last year — one of the hardest things I've done</li>
+        </ul>
+      </li>
+      <li>
+        Alpine Loop
+        <ul>
+          <li>About 20 miles, a loop through American Fork and Provo Canyons</li>
+          <li>Roughly 3,000 feet of climbing</li>
+          <li>Best in the fall when the leaves are changing</li>
+        </ul>
+      </li>
+      <li>
+        Provo Canyon
+        <ul>
+          <li>Easy paved trail, great for a recovery day</li>
+          <li>Follows the river the whole way up</li>
+          <li>The go-to ride when I'm short on time</li>
+        </ul>
+      </li>
+    </ol>
+
+    <h2 id="video">Watch: Trials Cycling by Danny MacAskill</h2>
+    <p>This is a classic cycling video I love — Danny MacAskill's "Imaginate," produced by Red Bull. If you've never seen trials cycling, this is a great intro.</p>
+    <div class="video-wrap">
+      <iframe
+        width="640"
+        height="360"
+        src="https://www.youtube.com/embed/Z19zFlPah-o"
+        title="Danny MacAskill - Imaginate"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen>
+      </iframe>
+    </div>
+
+    <h2 id="tableau">Data: Tour de France Dashboard</h2>
+    <p>Below is a live, interactive Tableau Public dashboard on the Tour de France. You can hover over bars and click to filter — it's the real interactive viz, not a screenshot.</p>
+    <div class="tableau-wrap">
+      <div class='tableauPlaceholder' id='viz-tdf' style='position: relative'>
+        <noscript>
+          <a href='#'><img alt='Tour de France Dashboard' src='https://public.tableau.com/static/images/To/TourdeFranceDashboard/Dashboard2/1_rss.png' style='border: none' /></a>
+        </noscript>
+        <object class='tableauViz' style='display:none;'>
+          <param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' />
+          <param name='embed_code_version' value='3' />
+          <param name='site_root' value='' />
+          <param name='name' value='TourdeFranceDashboard/Dashboard2' />
+          <param name='tabs' value='no' />
+          <param name='toolbar' value='yes' />
+          <param name='static_image' value='https://public.tableau.com/static/images/To/TourdeFranceDashboard/Dashboard2/1.png' />
+          <param name='animate_transition' value='yes' />
+          <param name='display_static_image' value='yes' />
+          <param name='display_spinner' value='yes' />
+          <param name='display_overlay' value='yes' />
+          <param name='display_count' value='yes' />
+          <param name='language' value='en-US' />
+        </object>
+      </div>
+      <script type='text/javascript'>
+        var divElement = document.getElementById('viz-tdf');
+        var vizElement = divElement.getElementsByTagName('object')[0];
+        vizElement.style.width = '100%';
+        vizElement.style.height = '800px';
+        var scriptElement = document.createElement('script');
+        scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';
+        vizElement.parentNode.insertBefore(scriptElement, vizElement);
+      </script>
+    </div>
+
+    <h2 id="app-link">Try My Web App</h2>
+    <p>For the web app part of this project, I built a <span class="highlight">Finance-themed Wordle</span>. Instead of normal 5-letter English words, the target word is always a finance term like YIELD, BONDS, or TRADE. After each round, the game shows you the definition so you can actually learn something.</p>
+    <p><a href="app.html"><strong>Play Finance Wordle &rarr;</strong></a></p>
+
+  </div>
+
+  <div id="nav">
+    <a href="index.html">Home (Resume)</a>
+    <a href="projects.html">Projects</a>
+    <a href="app.html">Finance Wordle</a>
+    <a href="#header">Back to Top</a>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<!-- Sam Rafferty | IS 201 Final Project | April 2026 -->
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="Sam Rafferty - Projects" />
+        <meta name="author" content="Sam Rafferty" />
+        <title>Sam Rafferty - Projects</title>
+        <link rel="icon" type="image/x-icon" href="images/favicon.ico" />
+        <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+        <link href="https://fonts.googleapis.com/css?family=Saira+Extra+Condensed:500,700" rel="stylesheet" type="text/css" />
+        <link href="https://fonts.googleapis.com/css?family=Muli:400,400i,800,800i" rel="stylesheet" type="text/css" />
+        <link href="css/resume.css" rel="stylesheet" />
+        <style>
+            /* Projects page specific adjustments */
+            .projects-wrap {
+                padding: 5rem 2rem;
+                max-width: 1100px;
+                margin: 0 auto;
+            }
+            .project-card {
+                background: #fff;
+                border-radius: 8px;
+                padding: 2rem;
+                margin-bottom: 2rem;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+                border-left: 5px solid #bd5d38;
+            }
+            .project-card h3 {
+                color: #bd5d38;
+                font-family: 'Saira Extra Condensed', sans-serif;
+                font-size: 2rem;
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+            }
+            .project-card p {
+                color: #444;
+                line-height: 1.6;
+            }
+            .project-link {
+                display: inline-block;
+                margin-top: 1rem;
+                padding: 0.6rem 1.4rem;
+                background-color: #bd5d38;
+                color: #fff;
+                text-decoration: none;
+                border-radius: 4px;
+                font-weight: 700;
+                transition: background-color 0.2s;
+            }
+            .project-link:hover {
+                background-color: #a94e2d;
+                color: #fff;
+            }
+            .page-title {
+                font-family: 'Saira Extra Condensed', sans-serif;
+                font-size: 3.5rem;
+                font-weight: 700;
+                color: #bd5d38;
+                margin-bottom: 0.5rem;
+            }
+            .page-subtitle {
+                color: #6c757d;
+                font-style: italic;
+                margin-bottom: 3rem;
+            }
+        </style>
+    </head>
+    <body id="page-top">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top" id="sideNav">
+            <a class="navbar-brand" href="index.html">
+                <span class="d-block d-lg-none">Sam Rafferty</span>
+                <span class="d-none d-lg-block"><img class="img-fluid img-profile rounded-circle mx-auto mb-2" src="images/headshot-placeholder.jpg" alt="Sam Rafferty headshot" /></span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="navbarResponsive">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="index.html#about">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html#experience">Experience</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html#education">Education</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html#skills">Skills</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html#interests">Interests</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html#awards">Awards</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="projects.html">Projects</a></li>
+                </ul>
+            </div>
+        </nav>
+        <div class="container-fluid p-0">
+            <div class="projects-wrap">
+                <h1 class="page-title">Projects</h1>
+                <p class="page-subtitle">A small collection of things I've built for IS 201 this semester.</p>
+
+                <div class="project-card">
+                    <h3>Finance Wordle</h3>
+                    <p>A Wordle clone I built in collaboration with AI for my IS 201 final project. Instead of common 5-letter English words, this version uses finance vocabulary — things like YIELD, BONDS, ASSET, and TRADE. After each round, the game shows the definition of the word so you can actually learn something. Built as a single HTML file with inline CSS and JavaScript.</p>
+                    <a class="project-link" href="app.html">Play the Game</a>
+                </div>
+
+                <div class="project-card">
+                    <h3>Cycling Page (from scratch)</h3>
+                    <p>A personal page I wrote from a blank HTML file, without using any Bootstrap components. It's about my favorite road bike rides around Utah and includes an embedded YouTube cycling video, an interactive Tableau data visualization, and a custom stylesheet I wrote from scratch. This is where my from-scratch HTML and CSS practice shows up.</p>
+                    <a class="project-link" href="scratch.html">Visit the Scratch Page</a>
+                </div>
+
+                <div class="project-card">
+                    <h3>Resume (this site)</h3>
+                    <p>The rest of this site is my HTML resume, built on top of a Bootstrap theme. It covers my experience, education, finance and technical skills, interests, and awards. All in HTML — no PDF — so it's always accessible and easy to update.</p>
+                    <a class="project-link" href="index.html">View Resume</a>
+                </div>
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
+</html>

@@ -1,0 +1,168 @@
+/* Sam Rafferty | IS 201 Final Project | scratch.css */
+/* Custom stylesheet written from scratch for scratch.html */
+
+body {
+  background-color: #f4ecd8;
+  font-family: Georgia, 'Times New Roman', serif;
+  color: #2c3e50;
+  margin: 0;
+  padding: 0;
+  padding-bottom: 70px;
+}
+
+h1, h2 {
+  font-family: 'Arial Black', Impact, sans-serif;
+  color: #8b0000;
+}
+
+h2 {
+  border-bottom: 2px solid #8b0000;
+  padding-bottom: 4px;
+  margin-top: 30px;
+}
+
+p {
+  line-height: 1.6;
+  font-size: 15px;
+}
+
+a {
+  color: #8b0000;
+  text-decoration: underline;
+}
+
+a:hover {
+  color: #d35400;
+  text-decoration: none;
+}
+
+#header {
+  position: relative;
+  background-color: #8b0000;
+  color: #ffffff;
+  padding: 25px 20px;
+  text-align: center;
+}
+
+#header h1 {
+  color: #ffffff;
+  margin: 0;
+  font-size: 36px;
+}
+
+#header p {
+  color: #f4ecd8;
+  margin: 8px 0 0 0;
+  font-style: italic;
+}
+
+#toc {
+  background-color: #ece0c7;
+  padding: 12px 20px;
+  text-align: center;
+  border-bottom: 1px solid #b8a67e;
+}
+
+#toc a {
+  margin: 0 10px;
+  font-weight: bold;
+}
+
+#sidebar {
+  position: absolute;
+  top: 180px;
+  left: 0;
+  width: 220px;
+  padding: 15px;
+  background-color: #ece0c7;
+  border: 1px solid #b8a67e;
+  box-sizing: border-box;
+}
+
+#sidebar h3 {
+  color: #8b0000;
+  font-family: 'Arial Black', sans-serif;
+  margin-top: 0;
+}
+
+#sidebar img {
+  width: 100%;
+  height: auto;
+}
+
+#main {
+  position: relative;
+  margin-left: 240px;
+  margin-right: 20px;
+  padding: 20px;
+  background-color: #fffcf2;
+  border: 1px solid #d6c9a1;
+  min-height: 500px;
+}
+
+#nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #333333;
+  color: #ffffff;
+  padding: 12px;
+  text-align: center;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.2);
+  z-index: 100;
+}
+
+#nav a {
+  color: #ffcc66;
+  margin: 0 15px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+#nav a:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+.highlight {
+  background-color: #ffef99;
+  color: #d35400;
+  font-weight: bold;
+  padding: 1px 4px;
+}
+
+img {
+  border: 3px solid #8b0000;
+  border-radius: 4px;
+}
+
+ol {
+  font-weight: bold;
+  color: #8b0000;
+}
+
+ol ul {
+  font-weight: normal;
+  color: #2c3e50;
+  margin-top: 6px;
+  margin-bottom: 12px;
+}
+
+.video-wrap {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.video-wrap iframe {
+  max-width: 100%;
+  border: 3px solid #8b0000;
+  border-radius: 4px;
+}
+
+.tableau-wrap {
+  margin: 20px 0;
+  padding: 10px;
+  background-color: #fffcf2;
+  border: 2px dashed #b8a67e;
+}
