@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>graphify - graphify-out/graph.html</title>
+<script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0f0f1a; color: #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; display: flex; height: 100vh; overflow: hidden; }
+  #graph { flex: 1; }
+  #sidebar { width: 280px; background: #1a1a2e; border-left: 1px solid #2a2a4e; display: flex; flex-direction: column; overflow: hidden; }
+  #search-wrap { padding: 12px; border-bottom: 1px solid #2a2a4e; }
+  #search { width: 100%; background: #0f0f1a; border: 1px solid #3a3a5e; color: #e0e0e0; padding: 7px 10px; border-radius: 6px; font-size: 13px; outline: none; }
+  #search:focus { border-color: #4E79A7; }
+  #search-results { max-height: 140px; overflow-y: auto; padding: 4px 12px; border-bottom: 1px solid #2a2a4e; display: none; }
+  .search-item { padding: 4px 6px; cursor: pointer; border-radius: 4px; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .search-item:hover { background: #2a2a4e; }
+  #info-panel { padding: 14px; border-bottom: 1px solid #2a2a4e; min-height: 140px; }
+  #info-panel h3 { font-size: 13px; color: #aaa; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+  #info-content { font-size: 13px; color: #ccc; line-height: 1.6; }
+  #info-content .field { margin-bottom: 5px; }
+  #info-content .field b { color: #e0e0e0; }
+  #info-content .empty { color: #555; font-style: italic; }
+  .neighbor-link { display: block; padding: 2px 6px; margin: 2px 0; border-radius: 3px; cursor: pointer; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-left: 3px solid #333; }
+  .neighbor-link:hover { background: #2a2a4e; }
+  #neighbors-list { max-height: 160px; overflow-y: auto; margin-top: 4px; }
+  #legend-wrap { flex: 1; overflow-y: auto; padding: 12px; }
+  #legend-wrap h3 { font-size: 13px; color: #aaa; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .legend-item { display: flex; align-items: center; gap: 8px; padding: 4px 0; cursor: pointer; border-radius: 4px; font-size: 12px; }
+  .legend-item:hover { background: #2a2a4e; padding-left: 4px; }
+  .legend-item.dimmed { opacity: 0.35; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+  .legend-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .legend-count { color: #666; font-size: 11px; }
+  #stats { padding: 10px 14px; border-top: 1px solid #2a2a4e; font-size: 11px; color: #555; }
+</style>
+</head>
+<body>
+<div id="graph"></div>
+<div id="sidebar">
+  <div id="search-wrap">
+    <input id="search" type="text" placeholder="Search nodes..." autocomplete="off">
+    <div id="search-results"></div>
+  </div>
+  <div id="info-panel">
+    <h3>Node Info</h3>
+    <div id="info-content"><span class="empty">Click a node to inspect it</span></div>
+  </div>
+  <div id="legend-wrap">
+    <h3>Communities</h3>
+    <div id="legend"></div>
+  </div>
+  <div id="stats">35 nodes &middot; 37 edges &middot; 9 communities</div>
+</div>
+<script>
+const RAW_NODES = [{"id": "scripts", "label": "scripts.js", "color": {"background": "#9C755F", "border": "#9C755F", "highlight": {"background": "#ffffff", "border": "#9C755F"}}, "size": 10.0, "font": {"size": 0, "color": "#ffffff"}, "title": "scripts.js", "community": 8, "community_name": "Theme JS", "source_file": "js\\scripts.js", "file_type": "code", "degree": 0}, {"id": "scripts_scrollspy_init", "label": "Bootstrap ScrollSpy Initialization", "color": {"background": "#4E79A7", "border": "#4E79A7", "highlight": {"background": "#ffffff", "border": "#4E79A7"}}, "size": 20.0, "font": {"size": 12, "color": "#ffffff"}, "title": "Bootstrap ScrollSpy Initialization", "community": 0, "community_name": "Bootstrap Theme", "source_file": "js/scripts.js", "file_type": "code", "degree": 3}, {"id": "scripts_navbar_collapse", "label": "Responsive Navbar Auto-Collapse", "color": {"background": "#4E79A7", "border": "#4E79A7", "highlight": {"background": "#ffffff", "border": "#4E79A7"}}, "size": 20.0, "font": {"size": 12, "color": "#ffffff"}, "title": "Responsive Navbar Auto-Collapse", "community": 0, "community_name": "Bootstrap Theme", "source_file": "js/scripts.js", "file_type": "code", "degree": 3}, {"id": "scripts_sidenav_target", "label": "#sideNav DOM Target", "color": {"background": "#4E79A7", "border": "#4E79A7", "highlight": {"background": "#ffffff", "border": "#4E79A7"}}, "size": 13.3, "font": {"size": 0, "color": "#ffffff"}, "title": "#sideNav DOM Target", "community": 0, "community_name": "Bootstrap Theme", "source_file": "js/scripts.js", "file_type": "code", "degree": 1}, {"id": "scripts_navbar_responsive_target", "label": "#navbarResponsive DOM Target", "color": {"background": "#4E79A7", "border": "#4E79A7", "highlight": {"background": "#ffffff", "border": "#4E79A7"}}, "size": 13.3, "font": {"size": 0, "color": "#ffffff"}, "title": "#navbarResponsive DOM Target", "community": 0, "community_name": "Bootstrap Theme", "source_file": "js/scripts.js", "file_type": "code", "degree": 1}, {"id": "scripts_startbootstrap_theme", "label": "Start Bootstrap Resume Theme v7.0.6", "color": {"background": "#4E79A7", "border": "#4E79A7", "highlight": {"background": "#ffffff", "border": "#4E79A7"}}, "size": 23.3, "font": {"size": 12, "color": "#ffffff"}, "title": "Start Bootstrap Resume Theme v7.0.6", "community": 0, "community_name": "Bootstrap Theme", "source_file": "js/scripts.js", "file_type": "code", "degree": 4}, {"id": "claudemd_project_overview", "label": "IS-201 Final Project Overview", "color": {"background": "#B07AA1", "border": "#B07AA1", "highlight": {"background": "#ffffff", "border": "#B07AA1"}}, "size": 13.3, "font": {"size": 0, "color": "#ffffff"}, "title": "IS-201 Final Project Overview", "community": 6, "community_name": "Project Overview", "source_file": "CLAUDE.md", "file_type": "document", "degree": 1}, {"id": "claudemd_no_build_system", "label": "No Build System Constraint", "color": {"background": "#59A14F", "border": "#59A14F", "highlight": {"background": "#ffffff", "border": "#59A14F"}}, "size": 13.3, "font": {"size": 0, "color": "#ffffff"}, "title": "No Build System Constraint", "community": 4, "community_name": "Local Dev Setup", "source_file": "CLAUDE.md", "file_type": "document", "degree": 1}, {"id": "claudemd_local_dev_server", "label": "Local HTTP Server Requirement (python -m http.server 8765)", "color": {"background": "#59A14F", "border": "#59A14F", "highlight": {"background": "#ffffff", "border": "#59A14F"}}, "size": 13.3, "font": {"size": 0, "color": "#ffffff"}, "title": "Local HTTP Server Requirement (python -m http.server 8765)", "community": 4, "community_name": "Local Dev Setup", "source_file": "CLAUDE.md", "file_type": "document", "degree": 1}, {"id": "claudemd_github_pages_hosting", "label": "GitHub Pages Deployment", "color": {"background": "#FF9DA7", "border": "#FF9DA7", "highlight": {"background": "#ffffff", "border": "#FF9DA7"}}, "size": 13.3, "font": {"size": 0, "color": "#ffffff"}, "title": "GitHub Pages Deployment", "community": 7, "community_name": "Deployment", "source_file": "CLAUDE.md", "file_type": "document", "degree": 1}, {"id": "claudemd_file_rules_table", "label": "File Responsibilities and Architectural Rules", "color": {"background": "#E15759", "border": "#E15759", "highlight": {"background": "#ffffff", "border": "#E15759"}}, "size": 33.3, "font": {"size": 12, "color": "#ffffff"}, "title": "File Responsibilities and Architectural Rules", "community": 2, "community_name": "File Rules and Architecture", "source_file": "CLAUDE.md", "file_type": "document", "degree": 7}, {"id": "claudemd_index_html_rule", "label": "index.html Rule: Resume Must Stay HTML", "color": {"background": "#E15759", "border": "#E15759", "highlight": {"background": "#ffffff", "border": "#E15759"}}, "size": 16.7, "font": {"size": 12, "color": "#ffffff"}, "title": "index.html Rule: Resume Must Stay HTML", "community": 2, "community_name": "File Rules and Architecture", "source_file": "CLAUDE.md", "file_type": "document", "degree": 2}, {"id": "claudemd_scratch_no_bootstrap", "label": "scratch.html No-Bootstrap Rule", "color": {"background": "#E15759", "border": "#E15759", "highlight": {"background": "#ffffff", "border": "#E15759"}}, "size": 16.7, "font": {"size": 12, "color": "#ffffff"}, "title": "scratch.html No-Bootstrap Rule", "community": 2, "community_name": "File Rules and Architecture", "source_file": "CLAUDE.md", "file_type": "document", "degree": 2}, {"id": "claudemd_app_single_file", "label": "app.html Single-File Rule", "color": {"background": "#E15759", "border": "#E15759", "highlight": {"background": "#ffffff", "border": "#E15759"}}, "size": 16.7, "font": {"size": 12, "color": "#ffffff"}, "title": "app.html Single-File Rule", "community": 2, "community_name": "File Rules and Architecture", "source_file": "CLAUDE.md", "file_type": "document", "degree": 2}, {"id": "claudemd_resume_css_dont_modify", "label": "resume.css Do-Not-Modify Rule", "color": {"background": "#4E79A7", "border": "#4E79A7", "highlight": {"background": "#ffffff", "border": "#4E79A7"}}, "size": 16.7, "font": {"size": 12, "color": "#ffffff"}, "title": "resume.css Do-Not-Modify Rule", "community": 0, "community_name": "Bootstrap Theme", "source_file": "CLAUDE.md", "file_type": "document", "degree": 2}, {"id": "claudemd_scratch_css_thresholds", "label": "scratch.css Rubric Thresholds (4 blocks, color, font-family, 3 position selectors)", "color": {"background": "#E15759", "border": "#E15759", "highlight": {"background": "#ffffff", "border": "#E15759"}}, "size": 16.7, "font": {"size": 12, "color": "#ffffff"}, "title": "scratch.css Rubric Thresholds (4 blocks, color, font-family, 3 position selectors)", "community": 2, "community_name": "File Rules and Architecture", "source_file": "CLAUDE.md", "file_type": "document", "degree": 2}, {"id": "claudemd_scripts_js_dont_modify", "label": "scripts.js Do-Not-Modify Rule", "color": {"background": "#4E79A7", "border": "#4E79A7", "highlight": {"background": "#ffffff", "border": "#4E79A7"}}, "size": 16.7, "font": {"size": 12, "color": "#ffffff"}, "title": "scripts.js Do-Not-Modify Rule", "community": 0, "community_name": "Bootstrap Theme", "source_file": "CLAUDE.md", "file_type": "document", "degree": 2}, {"id": "claudemd_rubric_elements", "label": "Rubric-Critical Elements on scratch.html", "color": {"background": "#76B7B2", "border": "#76B7B2", "highlight": {"background": "#ffffff", "border": "#76B7B2"}}, "size": 40.0, "font": {"size": 12, "color": "#ffffff"}, "title": "Rubric-Critical Elements on scratch.html", "community": 3, "community_name": "Rubric Elements", "source_file": "CLAUDE.md", "file_type": "document", "degree": 9}, {"id": "claudemd_nested_ol_ul", "label": "Nested ol/ul Favorite Rides Requirement", "color": {"background": "#F28E2B", "border": "#F28E2B", "highlight": {"background": "#ffffff", "border": "#F28E2B"}}, "size": 16.7, "font": {"size": 12, "color": "#ffffff"}, "title": "Nested ol/ul Favorite Rides Requirement", "community": 1, "community_name": "Scratch Page Content", "source_file": "CLAUDE.md", "file_type": "document", "degree": 2}, {"id": "claudemd_non_bootstrap_img", "label": "Non-Bootstrap img (mt-washington.jpg) Requirement", "color": {"background": "#F28E2B", "border": "#F28E2B", "highlight": {"background": "#ffffff", "border": "#F28E2B"}}, "size": 16.7, "font": {"size": 12, "color": "#ffffff"}, "title": "Non-Bootstrap img (mt-washington.jpg) Requirement", "community": 1, "community_name": "Scratch Page Content", "source_file": "CLAUDE.md", "file_type": "document", "degree": 2}, {"id": "claudemd_youtube_iframe_req", "label": "YouTube iframe Embed Requirement", "color": {"background": "#76B7B2", "border": "#76B7B2", "highlight": {"background": "#ffffff", "border": "#76B7B2"}}, "size": 13.3, "font": {"size": 0, "color": "#ffffff"}, "title": "YouTube iframe Embed Requirement", "community": 3, "community_name": "Rubric Elements", "source_file": "CLAUDE.md", "file_type": "document", "degree": 1}, {"id": "claudemd_anchor_links_req", "label": "On-Page Anchor Links (#rides, #video, #tableau, #app-link)", "color": {"background": "#76B7B2", "border": "#76B7B2", "highlight": {"background": "#ffffff", "border": "#76B7B2"}}, "size": 13.3, "font": {"size": 0, "color": "#ffffff"}, "title": "On-Page Anchor Links (#rides, #video, #tableau, #app-link)", "community": 3, "community_name": "Rubric Elements", "source_file": "CLAUDE.md", "file_type": "document", "degree": 1}, {"id": "claudemd_bg_color_req", "label": "Custom background-color #f4ecd8", "color": {"background": "#76B7B2", "border": "#76B7B2", "highlight": {"background": "#ffffff", "border": "#76B7B2"}}, "size": 13.3, "font": {"size": 0, "color": "#ffffff"}, "title": "Custom background-color #f4ecd8", "community": 3, "community_name": "Rubric Elements", "source_file": "CLAUDE.md", "file_type": "document", "degree": 1}, {"id": "claudemd_tableau_embed_req", "label": "Tableau Live Embed (TourdeFranceDashboard/Dashboard2)", "color": {"background": "#F28E2B", "border": "#F28E2B", "highlight": {"background": "#ffffff", "border": "#F28E2B"}}, "size": 20.0, "font": {"size": 12, "color": "#ffffff"}, "title": "Tableau Live Embed (TourdeFranceDashboard/Dashboard2)", "community": 1, "community_name": "Scratch Page Content", "source_file": "CLAUDE.md", "file_type": "document", "degree": 3}, {"id": "claudemd_footer_nav_req", "label": "Footer Nav Links to index/projects/app", "color": {"background": "#76B7B2", "border": "#76B7B2", "highlight": {"background": "#ffffff", "border": "#76B7B2"}}, "size": 13.3, "font": {"size": 0, "color": "#ffffff"}, "title": "Footer Nav Links to index/projects/app", "community": 3, "community_name": "Rubric Elements", "source_file": "CLAUDE.md", "file_type": "document", "degree": 1}, {"id": "claudemd_graphify_integration", "label": "Graphify Knowledge Graph Integration", "color": {"background": "#EDC948", "border": "#EDC948", "highlight": {"background": "#ffffff", "border": "#EDC948"}}, "size": 13.3, "font": {"size": 0, "color": "#ffffff"}, "title": "Graphify Knowledge Graph Integration", "community": 5, "community_name": "Graphify Integration", "source_file": "CLAUDE.md", "file_type": "document", "degree": 1}, {"id": "claudemd_post_commit_hook", "label": "Post-Commit Hook for graphify --update", "color": {"background": "#EDC948", "border": "#EDC948", "highlight": {"background": "#ffffff", "border": "#EDC948"}}, "size": 13.3, "font": {"size": 0, "color": "#ffffff"}, "title": "Post-Commit Hook for graphify --update", "community": 5, "community_name": "Graphify Integration", "source_file": "CLAUDE.md", "file_type": "document", "degree": 1}, {"id": "readme_project_title", "label": "IS 201 Final Project - Sam Rafferty", "color": {"background": "#B07AA1", "border": "#B07AA1", "highlight": {"background": "#ffffff", "border": "#B07AA1"}}, "size": 13.3, "font": {"size": 0, "color": "#ffffff"}, "title": "IS 201 Final Project - Sam Rafferty", "community": 6, "community_name": "Project Overview", "source_file": "README.md", "file_type": "document", "degree": 1}, {"id": "readme_pages_list", "label": "README Pages List", "color": {"background": "#E15759", "border": "#E15759", "highlight": {"background": "#ffffff", "border": "#E15759"}}, "size": 16.7, "font": {"size": 12, "color": "#ffffff"}, "title": "README Pages List", "community": 2, "community_name": "File Rules and Architecture", "source_file": "README.md", "file_type": "document", "degree": 2}, {"id": "readme_finance_wordle", "label": "Finance Wordle (AI-collaborated app)", "color": {"background": "#E15759", "border": "#E15759", "highlight": {"background": "#ffffff", "border": "#E15759"}}, "size": 13.3, "font": {"size": 0, "color": "#ffffff"}, "title": "Finance Wordle (AI-collaborated app)", "community": 2, "community_name": "File Rules and Architecture", "source_file": "README.md", "file_type": "document", "degree": 1}, {"id": "readme_hosted_url", "label": "GitHub Pages Hosted URL", "color": {"background": "#FF9DA7", "border": "#FF9DA7", "highlight": {"background": "#ffffff", "border": "#FF9DA7"}}, "size": 13.3, "font": {"size": 0, "color": "#ffffff"}, "title": "GitHub Pages Hosted URL", "community": 7, "community_name": "Deployment", "source_file": "README.md", "file_type": "document", "degree": 1}, {"id": "img_headshot_sam", "label": "Sam Rafferty Professional Headshot", "color": {"background": "#F28E2B", "border": "#F28E2B", "highlight": {"background": "#ffffff", "border": "#F28E2B"}}, "size": 16.7, "font": {"size": 12, "color": "#ffffff"}, "title": "Sam Rafferty Professional Headshot", "community": 1, "community_name": "Scratch Page Content", "source_file": "images/headshot.jpg", "file_type": "image", "degree": 2}, {"id": "img_mt_washington_cycling", "label": "Sam Rafferty Cycling at Mt Washington (Race Action Shot)", "color": {"background": "#F28E2B", "border": "#F28E2B", "highlight": {"background": "#ffffff", "border": "#F28E2B"}}, "size": 26.7, "font": {"size": 12, "color": "#ffffff"}, "title": "Sam Rafferty Cycling at Mt Washington (Race Action Shot)", "community": 1, "community_name": "Scratch Page Content", "source_file": "images/mt-washington.jpg", "file_type": "image", "degree": 5}, {"id": "concept_sam_rafferty", "label": "Sam Rafferty (Student/Author)", "color": {"background": "#F28E2B", "border": "#F28E2B", "highlight": {"background": "#ffffff", "border": "#F28E2B"}}, "size": 16.7, "font": {"size": 12, "color": "#ffffff"}, "title": "Sam Rafferty (Student/Author)", "community": 1, "community_name": "Scratch Page Content", "source_file": "README.md", "file_type": "document", "degree": 2}, {"id": "concept_cycling_theme", "label": "Cycling Theme of scratch.html", "color": {"background": "#F28E2B", "border": "#F28E2B", "highlight": {"background": "#ffffff", "border": "#F28E2B"}}, "size": 20.0, "font": {"size": 12, "color": "#ffffff"}, "title": "Cycling Theme of scratch.html", "community": 1, "community_name": "Scratch Page Content", "source_file": "README.md", "file_type": "document", "degree": 3}];
+const RAW_EDGES = [{"from": "scripts_scrollspy_init", "to": "scripts_sidenav_target", "label": "references", "title": "references [EXTRACTED]", "dashes": false, "width": 2, "color": {"opacity": 0.7}, "confidence": "EXTRACTED"}, {"from": "scripts_scrollspy_init", "to": "scripts_startbootstrap_theme", "label": "implements", "title": "implements [EXTRACTED]", "dashes": false, "width": 2, "color": {"opacity": 0.7}, "confidence": "EXTRACTED"}, {"from": "scripts_scrollspy_init", "to": "scripts_navbar_collapse", "label": "shares_data_with", "title": "shares_data_with [INFERRED]", "dashes": true, "width": 1, "color": {"opacity": 0.35}, "confidence": "INFERRED"}, {"from": "scripts_navbar_collapse", "to": "scripts_navbar_responsive_target", "label": "references", "title": "references [EXTRACTED]", "dashes": false, "width": 2, "color": {"opacity": 0.7}, "confidence": "EXTRACTED"}, {"from": "scripts_navbar_collapse", "to": "scripts_startbootstrap_theme", "label": "implements", "title": "implements [EXTRACTED]", "dashes": false, "width": 2, "color": {"opacity": 0.7}, "confidence": "EXTRACTED"}, {"from": "scripts_startbootstrap_theme", "to": "claudemd_scripts_js_dont_modify", "label": "rationale_for", "title": "rationale_for [EXTRACTED]", "dashes": false, "width": 2, "color": {"opacity": 0.7}, "confidence": "EXTRACTED"}, {"from": "scripts_startbootstrap_theme", "to": "claudemd_resume_css_dont_modify", "label": "rationale_for", "title": "rationale_for [INFERRED]", "dashes": true, "width": 1, "color": {"opacity": 0.35}, "confidence": "INFERRED"}, {"from": "claudemd_project_overview", "to": "readme_project_title", "label": "conceptually_related_to", "title": "conceptually_related_to [EXTRACTED]", "dashes": false, "width": 2, "color": {"opacity": 0.7}, "confidence": "EXTRACTED"}, {"from": "claudemd_no_build_system", "to": "claudemd_local_dev_server", "label": "rationale_for", "title": "rationale_for [INFERRED]", "dashes": true, "width": 1, "color": {"opacity": 0.35}, "confidence": "INFERRED"}, {"from": "claudemd_github_pages_hosting", "to": "readme_hosted_url", "label": "references", "title": "references [EXTRACTED]", "dashes": false, "width": 2, "color": {"opacity": 0.7}, "confidence": "EXTRACTED"}, {"from": "claudemd_file_rules_table", "to": "readme_pages_list", "label": "semantically_similar_to", "title": "semantically_similar_to [INFERRED]", "dashes": true, "width": 1, "color": {"opacity": 0.35}, "confidence": "INFERRED"}, {"from": "claudemd_file_rules_table", "to": "claudemd_index_html_rule", "label": "references", "title": "references [EXTRACTED]", "dashes": false, "width": 2, "color": {"opacity": 0.7}, "confidence": "EXTRACTED"}, {"from": "claudemd_file_rules_table", "to": "claudemd_scratch_no_bootstrap", "label": "references", "title": "references [EXTRACTED]", "dashes": false, "width": 2, "color": {"opacity": 0.7}, "confidence": "EXTRACTED"}, {"from": "claudemd_file_rules_table", "to": "claudemd_app_single_file", "label": "references", "title": "references [EXTRACTED]", "dashes": false, "width": 2, "color": {"opacity": 0.7}, "confidence": "EXTRACTED"}, {"from": "claudemd_file_rules_table", "to": "claudemd_resume_css_dont_modify", "label": "references", "title": "references [EXTRACTED]", "dashes": false, "width": 2, "color": {"opacity": 0.7}, "confidence": "EXTRACTED"}, {"from": "claudemd_file_rules_table", "to": "claudemd_scratch_css_thresholds", "label": "references", "title": "references [EXTRACTED]", "dashes": false, "width": 2, "color": {"opacity": 0.7}, "confidence": "EXTRACTED"}, {"from": "claudemd_file_rules_table", "to": "claudemd_scripts_js_dont_modify", "label": "references", "title": "references [EXTRACTED]", "dashes": false, "width": 2, "color": {"opacity": 0.7}, "confidence": "EXTRACTED"}, {"from": "claudemd_index_html_rule", "to": "readme_pages_list", "label": "conceptually_related_to", "title": "conceptually_related_to [INFERRED]", "dashes": true, "width": 1, "color": {"opacity": 0.35}, "confidence": "INFERRED"}, {"from": "claudemd_scratch_no_bootstrap", "to": "claudemd_rubric_elements", "label": "rationale_for", "title": "rationale_for [EXTRACTED]", "dashes": false, "width": 2, "color": {"opacity": 0.7}, "confidence": "EXTRACTED"}, {"from": "claudemd_app_single_file", "to": "readme_finance_wordle", "label": "conceptually_related_to", "title": "conceptually_related_to [EXTRACTED]", "dashes": false, "width": 2, "color": {"opacity": 0.7}, "confidence": "EXTRACTED"}, {"from": "claudemd_scratch_css_thresholds", "to": "claudemd_rubric_elements", "label": "rationale_for", "title": "rationale_for [EXTRACTED]", "dashes": false, "width": 2, "color": {"opacity": 0.7}, "confidence": "EXTRACTED"}, {"from": "claudemd_rubric_elements", "to": "claudemd_nested_ol_ul", "label": "references", "title": "references [EXTRACTED]", "dashes": false, "width": 2, "color": {"opacity": 0.7}, "confidence": "EXTRACTED"}, {"from": "claudemd_rubric_elements", "to": "claudemd_non_bootstrap_img", "label": "references", "title": "references [EXTRACTED]", "dashes": false, "width": 2, "color": {"opacity": 0.7}, "confidence": "EXTRACTED"}, {"from": "claudemd_rubric_elements", "to": "claudemd_youtube_iframe_req", "label": "references", "title": "references [EXTRACTED]", "dashes": false, "width": 2, "color": {"opacity": 0.7}, "confidence": "EXTRACTED"}, {"from": "claudemd_rubric_elements", "to": "claudemd_anchor_links_req", "label": "references", "title": "references [EXTRACTED]", "dashes": false, "width": 2, "color": {"opacity": 0.7}, "confidence": "EXTRACTED"}, {"from": "claudemd_rubric_elements", "to": "claudemd_bg_color_req", "label": "references", "title": "references [EXTRACTED]", "dashes": false, "width": 2, "color": {"opacity": 0.7}, "confidence": "EXTRACTED"}, {"from": "claudemd_rubric_elements", "to": "claudemd_tableau_embed_req", "label": "references", "title": "references [EXTRACTED]", "dashes": false, "width": 2, "color": {"opacity": 0.7}, "confidence": "EXTRACTED"}, {"from": "claudemd_rubric_elements", "to": "claudemd_footer_nav_req", "label": "references", "title": "references [EXTRACTED]", "dashes": false, "width": 2, "color": {"opacity": 0.7}, "confidence": "EXTRACTED"}, {"from": "claudemd_nested_ol_ul", "to": "concept_cycling_theme", "label": "conceptually_related_to", "title": "conceptually_related_to [INFERRED]", "dashes": true, "width": 1, "color": {"opacity": 0.35}, "confidence": "INFERRED"}, {"from": "claudemd_non_bootstrap_img", "to": "img_mt_washington_cycling", "label": "references", "title": "references [EXTRACTED]", "dashes": false, "width": 2, "color": {"opacity": 0.7}, "confidence": "EXTRACTED"}, {"from": "claudemd_tableau_embed_req", "to": "img_mt_washington_cycling", "label": "conceptually_related_to", "title": "conceptually_related_to [INFERRED]", "dashes": true, "width": 1, "color": {"opacity": 0.35}, "confidence": "INFERRED"}, {"from": "claudemd_tableau_embed_req", "to": "concept_cycling_theme", "label": "conceptually_related_to", "title": "conceptually_related_to [INFERRED]", "dashes": true, "width": 1, "color": {"opacity": 0.35}, "confidence": "INFERRED"}, {"from": "claudemd_graphify_integration", "to": "claudemd_post_commit_hook", "label": "references", "title": "references [EXTRACTED]", "dashes": false, "width": 2, "color": {"opacity": 0.7}, "confidence": "EXTRACTED"}, {"from": "img_headshot_sam", "to": "concept_sam_rafferty", "label": "references", "title": "references [EXTRACTED]", "dashes": false, "width": 2, "color": {"opacity": 0.7}, "confidence": "EXTRACTED"}, {"from": "img_headshot_sam", "to": "img_mt_washington_cycling", "label": "semantically_similar_to", "title": "semantically_similar_to [INFERRED]", "dashes": true, "width": 1, "color": {"opacity": 0.35}, "confidence": "INFERRED"}, {"from": "img_mt_washington_cycling", "to": "concept_sam_rafferty", "label": "references", "title": "references [EXTRACTED]", "dashes": false, "width": 2, "color": {"opacity": 0.7}, "confidence": "EXTRACTED"}, {"from": "img_mt_washington_cycling", "to": "concept_cycling_theme", "label": "conceptually_related_to", "title": "conceptually_related_to [EXTRACTED]", "dashes": false, "width": 2, "color": {"opacity": 0.7}, "confidence": "EXTRACTED"}];
+const LEGEND = [{"cid": 0, "color": "#4E79A7", "label": "Bootstrap Theme", "count": 7}, {"cid": 1, "color": "#F28E2B", "label": "Scratch Page Content", "count": 7}, {"cid": 2, "color": "#E15759", "label": "File Rules and Architecture", "count": 7}, {"cid": 3, "color": "#76B7B2", "label": "Rubric Elements", "count": 5}, {"cid": 4, "color": "#59A14F", "label": "Local Dev Setup", "count": 2}, {"cid": 5, "color": "#EDC948", "label": "Graphify Integration", "count": 2}, {"cid": 6, "color": "#B07AA1", "label": "Project Overview", "count": 2}, {"cid": 7, "color": "#FF9DA7", "label": "Deployment", "count": 2}, {"cid": 8, "color": "#9C755F", "label": "Theme JS", "count": 1}];
+
+// HTML-escape helper — prevents XSS when injecting graph data into innerHTML
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// Build vis datasets
+const nodesDS = new vis.DataSet(RAW_NODES.map(n => ({
+  id: n.id, label: n.label, color: n.color, size: n.size,
+  font: n.font, title: n.title,
+  _community: n.community, _community_name: n.community_name,
+  _source_file: n.source_file, _file_type: n.file_type, _degree: n.degree,
+})));
+
+const edgesDS = new vis.DataSet(RAW_EDGES.map((e, i) => ({
+  id: i, from: e.from, to: e.to,
+  label: '',
+  title: e.title,
+  dashes: e.dashes,
+  width: e.width,
+  color: e.color,
+  arrows: { to: { enabled: true, scaleFactor: 0.5 } },
+})));
+
+const container = document.getElementById('graph');
+const network = new vis.Network(container, { nodes: nodesDS, edges: edgesDS }, {
+  physics: {
+    enabled: true,
+    solver: 'forceAtlas2Based',
+    forceAtlas2Based: {
+      gravitationalConstant: -60,
+      centralGravity: 0.005,
+      springLength: 120,
+      springConstant: 0.08,
+      damping: 0.4,
+      avoidOverlap: 0.8,
+    },
+    stabilization: { iterations: 200, fit: true },
+  },
+  interaction: {
+    hover: true,
+    tooltipDelay: 100,
+    hideEdgesOnDrag: true,
+    navigationButtons: false,
+    keyboard: false,
+  },
+  nodes: { shape: 'dot', borderWidth: 1.5 },
+  edges: { smooth: { type: 'continuous', roundness: 0.2 }, selectionWidth: 3 },
+});
+
+network.once('stabilizationIterationsDone', () => {
+  network.setOptions({ physics: { enabled: false } });
+});
+
+function showInfo(nodeId) {
+  const n = nodesDS.get(nodeId);
+  if (!n) return;
+  const neighborIds = network.getConnectedNodes(nodeId);
+  const neighborItems = neighborIds.map(nid => {
+    const nb = nodesDS.get(nid);
+    const color = nb ? nb.color.background : '#555';
+    return `<span class="neighbor-link" style="border-left-color:${esc(color)}" onclick="focusNode(${JSON.stringify(nid)})">${esc(nb ? nb.label : nid)}</span>`;
+  }).join('');
+  document.getElementById('info-content').innerHTML = `
+    <div class="field"><b>${esc(n.label)}</b></div>
+    <div class="field">Type: ${esc(n._file_type || 'unknown')}</div>
+    <div class="field">Community: ${esc(n._community_name)}</div>
+    <div class="field">Source: ${esc(n._source_file || '-')}</div>
+    <div class="field">Degree: ${n._degree}</div>
+    ${neighborIds.length ? `<div class="field" style="margin-top:8px;color:#aaa;font-size:11px">Neighbors (${neighborIds.length})</div><div id="neighbors-list">${neighborItems}</div>` : ''}
+  `;
+}
+
+function focusNode(nodeId) {
+  network.focus(nodeId, { scale: 1.4, animation: true });
+  network.selectNodes([nodeId]);
+  showInfo(nodeId);
+}
+
+// Track hovered node — hover detection is more reliable than click params
+let hoveredNodeId = null;
+network.on('hoverNode', params => {
+  hoveredNodeId = params.node;
+  container.style.cursor = 'pointer';
+});
+network.on('blurNode', () => {
+  hoveredNodeId = null;
+  container.style.cursor = 'default';
+});
+container.addEventListener('click', () => {
+  if (hoveredNodeId !== null) {
+    showInfo(hoveredNodeId);
+    network.selectNodes([hoveredNodeId]);
+  }
+});
+network.on('click', params => {
+  if (params.nodes.length > 0) {
+    showInfo(params.nodes[0]);
+  } else if (hoveredNodeId === null) {
+    document.getElementById('info-content').innerHTML = '<span class="empty">Click a node to inspect it</span>';
+  }
+});
+
+const searchInput = document.getElementById('search');
+const searchResults = document.getElementById('search-results');
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.toLowerCase().trim();
+  searchResults.innerHTML = '';
+  if (!q) { searchResults.style.display = 'none'; return; }
+  const matches = RAW_NODES.filter(n => n.label.toLowerCase().includes(q)).slice(0, 20);
+  if (!matches.length) { searchResults.style.display = 'none'; return; }
+  searchResults.style.display = 'block';
+  matches.forEach(n => {
+    const el = document.createElement('div');
+    el.className = 'search-item';
+    el.textContent = n.label;
+    el.style.borderLeft = `3px solid ${n.color.background}`;
+    el.style.paddingLeft = '8px';
+    el.onclick = () => {
+      network.focus(n.id, { scale: 1.5, animation: true });
+      network.selectNodes([n.id]);
+      showInfo(n.id);
+      searchResults.style.display = 'none';
+      searchInput.value = '';
+    };
+    searchResults.appendChild(el);
+  });
+});
+document.addEventListener('click', e => {
+  if (!searchResults.contains(e.target) && e.target !== searchInput)
+    searchResults.style.display = 'none';
+});
+
+const hiddenCommunities = new Set();
+const legendEl = document.getElementById('legend');
+LEGEND.forEach(c => {
+  const item = document.createElement('div');
+  item.className = 'legend-item';
+  item.innerHTML = `<div class="legend-dot" style="background:${c.color}"></div>
+    <span class="legend-label">${c.label}</span>
+    <span class="legend-count">${c.count}</span>`;
+  item.onclick = () => {
+    if (hiddenCommunities.has(c.cid)) {
+      hiddenCommunities.delete(c.cid);
+      item.classList.remove('dimmed');
+    } else {
+      hiddenCommunities.add(c.cid);
+      item.classList.add('dimmed');
+    }
+    const updates = RAW_NODES
+      .filter(n => n.community === c.cid)
+      .map(n => ({ id: n.id, hidden: hiddenCommunities.has(c.cid) }));
+    nodesDS.update(updates);
+  };
+  legendEl.appendChild(item);
+});
+</script>
+<script>
+// Render hyperedges as shaded regions
+const hyperedges = [{"id": "scratch_html_rubric_bundle", "label": "scratch.html Rubric Requirements Bundle", "nodes": ["claudemd_scratch_no_bootstrap", "claudemd_nested_ol_ul", "claudemd_non_bootstrap_img", "claudemd_youtube_iframe_req", "claudemd_anchor_links_req", "claudemd_bg_color_req", "claudemd_tableau_embed_req", "claudemd_footer_nav_req", "claudemd_scratch_css_thresholds"], "relation": "participate_in", "confidence": "EXTRACTED", "confidence_score": 0.95, "source_file": "CLAUDE.md"}, {"id": "bootstrap_theme_lockdown", "label": "Start Bootstrap Theme Lockdown (Do-Not-Modify Files)", "nodes": ["scripts_startbootstrap_theme", "claudemd_resume_css_dont_modify", "claudemd_scripts_js_dont_modify"], "relation": "form", "confidence": "EXTRACTED", "confidence_score": 0.9, "source_file": "CLAUDE.md"}, {"id": "sam_rafferty_identity_bundle", "label": "Sam Rafferty Personal Identity (Professional + Cycling)", "nodes": ["concept_sam_rafferty", "img_headshot_sam", "img_mt_washington_cycling", "concept_cycling_theme"], "relation": "participate_in", "confidence": "INFERRED", "confidence_score": 0.85, "source_file": "README.md"}];
+function drawHyperedges() {
+    const canvas = network.canvas.frame.canvas;
+    const ctx = canvas.getContext('2d');
+    hyperedges.forEach(h => {
+        const positions = h.nodes
+            .map(nid => network.getPositions([nid])[nid])
+            .filter(p => p !== undefined);
+        if (positions.length < 2) return;
+        // Draw convex hull as filled polygon
+        ctx.save();
+        ctx.globalAlpha = 0.12;
+        ctx.fillStyle = '#6366f1';
+        ctx.strokeStyle = '#6366f1';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        const scale = network.getScale();
+        const offset = network.getViewPosition();
+        const toCanvas = (p) => ({
+            x: (p.x - offset.x) * scale + canvas.width / 2,
+            y: (p.y - offset.y) * scale + canvas.height / 2
+        });
+        const pts = positions.map(toCanvas);
+        // Expand hull slightly
+        const cx = pts.reduce((s, p) => s + p.x, 0) / pts.length;
+        const cy = pts.reduce((s, p) => s + p.y, 0) / pts.length;
+        const expanded = pts.map(p => ({
+            x: cx + (p.x - cx) * 1.15,
+            y: cy + (p.y - cy) * 1.15
+        }));
+        ctx.moveTo(expanded[0].x, expanded[0].y);
+        expanded.slice(1).forEach(p => ctx.lineTo(p.x, p.y));
+        ctx.closePath();
+        ctx.fill();
+        ctx.globalAlpha = 0.4;
+        ctx.stroke();
+        // Label
+        ctx.globalAlpha = 0.8;
+        ctx.fillStyle = '#4f46e5';
+        ctx.font = 'bold 11px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(h.label, cx, cy - 5);
+        ctx.restore();
+    });
+}
+network.on('afterDrawing', drawHyperedges);
+</script>
+</body>
+</html>
