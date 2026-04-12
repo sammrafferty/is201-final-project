@@ -165,4 +165,43 @@ ol ul {
   padding: 10px;
   background-color: #fffcf2;
   border: 2px dashed #b8a67e;
+  overflow-x: auto;
+}
+
+/* Mobile layout: stack sidebar and main vertically */
+@media (max-width: 768px) {
+  #sidebar {
+    position: static;
+    width: auto;
+    margin: 10px;
+  }
+  #main {
+    margin-left: 10px;
+    margin-right: 10px;
+    padding: 15px;
+  }
+  #header h1 {
+    font-size: 26px;
+  }
+  #toc a {
+    display: inline-block;
+    margin: 4px 6px;
+  }
+  #nav {
+    padding: 8px 6px;
+    font-size: 13px;
+  }
+  #nav a {
+    margin: 0 6px;
+    display: inline-block;
+  }
+  .video-wrap iframe {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+  }
+  img {
+    max-width: 100%;
+    height: auto;
+  }
 }
